@@ -9,7 +9,7 @@
 #		a. Open the kernel makefile:
 		vim kernel/Makefile
 		
-#		b. Added prinfo.o to the end of obj-y:
+#		b. Add prinfo.o to the end of obj-y assignment list:
 obj-y     = sched.o fork.o exec_domain.o panic.o printk.o \
 	    cpu.o exit.o itimer.o time.o softirq.o resource.o \
 	    sysctl.o capability.o ptrace.o timer.o user.o \
