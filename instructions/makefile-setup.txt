@@ -1,0 +1,24 @@
+# ----------makefile-setup.txt-----------------------------------------------------
+# How to configure the Makefiles in kernel.
+
+# 1. Building added .c files in the kernel directory.
+# -----------------------------------------------------
+#		Lets say you added prinfo.c to the kernel directory and wanted it to be build
+#		along with building the kernel.
+#
+#		a. Open the kernel makefile:
+		vim kernel/Makefile
+		
+#		b. Added prinfo.o to the end of obj-y:
+obj-y     = sched.o fork.o exec_domain.o panic.o printk.o \
+	    cpu.o exit.o itimer.o time.o softirq.o resource.o \
+	    sysctl.o capability.o ptrace.o timer.o user.o \
+	    signal.o sys.o kmod.o workqueue.o pid.o \
+	    rcupdate.o extable.o params.o posix-timers.o \
+	    kthread.o wait.o kfifo.o sys_ni.o posix-cpu-timers.o mutex.o \
+	    hrtimer.o rwsem.o nsproxy.o srcu.o semaphore.o \
+	    notifier.o ksysfs.o pm_qos_params.o sched_clock.o cred.o \
+	    async.o prinfo.o
+
+#		c. You are done.
+		./buildandroid
