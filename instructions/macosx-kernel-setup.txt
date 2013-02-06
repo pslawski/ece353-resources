@@ -1,0 +1,109 @@
+# ----------macosx-kernel-setup.txt------------------------------------------------
+# Instructions to setup the ECE353 kernel on a Mac OSX.
+# Note: These instructions were tested on a Macbook Air.
+# 
+
+#----------------------------------------------------------------------------------
+# ----------Part 1: Checkout Repository--------------------------------------------
+#----------------------------------------------------------------------------------
+# Since Linux's file system is case-sensitive where as Mac's is case-insensitive,
+# checking out the repository directly to your Macintosh HD will fail. We need to
+# setup a image formatted in Case-sensitive HFS+ file system.
+
+
+# 1. Create the image.
+#     Note: size can be change from 2g to maybe 750mb, but I suggest you allocate
+#     extra room.
+hdiutil create -size 2g -fs "Case-sensitive HFS+" -volname ece353-os ece353-os.dmg
+
+# 2. Attach and CD into the created image.
+hdiutil attach ece353-os.dmg
+cd /Volumes/ece353-os
+
+# 3. Checkout your repository.
+svn co $ECE353_SVN/trunk android
+
+
+#----------------------------------------------------------------------------------
+# ----------Part 2: Creating Android Image ----------------------------------------
+#----------------------------------------------------------------------------------
+
+# 1.  Install Homebrew if you don't have it.
+
+# 2.  Install Android development kits
+
+brew install android-sdk
+brew install android-ndk
+
+# 3.  Add the following line to ~/.bashrc
+
+export ANDROID_SDK_ROOT=/usr/local/opt/android-sdk
+
+# 4.  Restart your shell
+
+# 5.  Open the Android SDK Manager
+
+android
+
+# 6.  Check "ARM EABI v7a System Image" under the "Android 4.1.2 (API 16)" folder.
+# 7.  Click "Install Packages..."
+# 8.  Click "Accept All".
+# 9.  Click "Install".
+# 10. Wait for installation to finish.
+
+# 11. List targets ID of each system image
+
+android list targets
+
+# 12. Find the target ID of the "android-16", mine was 1.
+
+# 13. Create a AVD, replace <target ID> with the number found in step 12
+
+android create avd -n my_android1.5 -t <target ID> --abi armeabi-v7a
+
+
+#----------------------------------------------------------------------------------
+# ----------Part 3: Building and Launching the Kernel------------------------------
+#----------------------------------------------------------------------------------
+
+# 1. Configure the Makefile
+
+cd ~/ece353/android/kernel/linux-goldfish-2.6.29
+make ARCH=arm goldfish_armv7_defconfig
+
+# 2. Get missing include files into your /usr/include, 
+#    replace <username> with your UTORid
+
+mkdir include include/gnu include/bits
+scp remote.ecf.utoronto.ca:/usr/include/elf.h remote.ecf.utoronto.ca:/usr/include/features.h remote.ecf.utoronto.ca:/usr/include/gnu/stubs.h remote.ecf.utoronto.ca:/usr/include/bits/wordsize.h remote.ecf.utoronto.ca:/usr/include/gnu/stubs-32.h include
+mv include/stubs.h include/gnu
+mv include/stubs-32.h include/gnu
+mv include/wordsize.h include/bits
+sudo mv include/* /usr/include/
+
+# 3. Create the kernal build script.
+
+cd ~/ece353
+vim buildandroid
+
+# 4. Enter the following in vim, save and quit.
+
+cd ~/ece353/android/kernel/linux-goldfish-2.6.29
+if [ $? -ne 0 ]; then
+  echo "Failed to change to Android kernel directory"
+  exit
+fi
+make -j2 ARCH=arm CROSS_COMPILE=/usr/local/opt/android-ndk/toolchains/arm-linux-androideabi-4.4.3/prebuilt/darwin-x86/bin/arm-linux-androideabi-
+
+# 5. Change buildandroid permissions to make it executable
+
+chmod 755 buildandroid
+
+# 6. Build the kernal
+
+./buildandroid
+
+# 7. Run the emulator
+
+emulator -avd ece353avd -kernel ~/ece353/android/kernel/linux-goldfish-2.6.29/arch/arm/boot/zImage -show-kernel
+
