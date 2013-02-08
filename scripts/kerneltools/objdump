@@ -1,0 +1,10 @@
+# ------------objdump--------------------------------------------------------------
+# Shortcut script to execute objdump on the kernel
+# Assumes $PATH is set to toolchain bin folder and $KERN is set to the directory
+# of the kernel source files.
+cd $KERN
+if [ $? -ne 0 ]; then
+  echo "Failed to change to Android kernel directory"
+  exit
+fi
+arm-linux-androideabi-objdump -S vmlinux | less
