@@ -1,10 +1,23 @@
+#!/bin/bash
 # ------------run------------------------------------------------------------------
-# Shortcut script to execute objdump on the kernel
-# Assumes $PATH is set to toolchain bin folder and $KERN is set to the directory
+# Shortcut script to run the kernel in either normal or debug mode.
+# assumes $path is set to toolchain bin folder and $kern is set to the directory
 # of the kernel source files.
+
 cd $KERN
 if [ $? -ne 0 ]; then
-  echo "Failed to change to Android kernel directory"
+  echo "failed to change to android kernel directory"
   exit
 fi
-emulator -avd ece353avd -kernel arch/arm/boot/zImage -show-kernel
+
+
+if [ $# == 1 ] && [ $1 == "debug" ]; then
+  emulator -avd ece353avd -kernel arch/arm/boot/zImage -show-kernel  -qemu -monitor telnet::4444,server -s
+else
+  if [ $# == 0 ]; then
+    emulator -avd ece353avd -kernel arch/arm/boot/zImage -show-kernel
+  else
+    echo "Usage: run kernel normally:           run      "
+    echo "       run kernel in debug monitor:   run debug"
+  fi
+fi
