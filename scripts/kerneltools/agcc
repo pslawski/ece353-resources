@@ -1,0 +1,8 @@
+ANDROID_PREBUILT=/usr/local/opt/android-ndk/toolchains/arm-linux-androideabi-4.4.3/prebuilt
+ANDROID_14=/usr/local/Cellar/android-ndk/r8d/platforms/android-14/arch-arm/usr
+if [ $# -eq 0 ]; then
+	echo "agcc: no input"
+	exit
+fi
+$ANDROID_PREBUILT/darwin-x86/bin/arm-linux-androideabi-gcc -I$ANDROID_14/include -Bdynamic -Wl,--gc-section -Wl,-z,nocopyreloc -Wl,--no-undefined -Wl,--dynamic-linker=/system/bin/linker -Wl,-rpath-link=$ANDROID_14/lib -L$ANDROID_14/lib -nostdlib $ANDROID_14/lib/crtend_android.o $ANDROID_14/lib/crtbegin_dynamic.o -lc $* -landroid -lgcc
+
