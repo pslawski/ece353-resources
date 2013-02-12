@@ -1,4 +1,22 @@
 #!/usr/bin/perl
+#---------------part5-------------------------------------------------------------------
+# This scripts helps detect changes of the output of the ptree test program after 
+# iterative executions. Changes are shown by colored font:
+#   default text color:   NO CHANGE
+#   red color:            PROCESS REMOVED/CHANGED
+#   green color:          PROCESS ADDED/CHANGED
+# 
+# Options:
+#   -h      Hide the processes that didn't change from the previous iteration.
+#
+# Requirements:
+#   Currently this script uses "run ptree" to execute the test program. 
+#   The run script can be found in ece353-resources/scripts/kerneltools.
+#   This scripts assumes the PATH environment variable contains the path to the run script.
+#
+#   The command "run ptree" may be changed to "adb shell /data/local/ptree" if your
+#   do not wish to use the run script.
+#
 use warnings;
 use strict;
 use Term::ANSIColor;
@@ -13,17 +31,24 @@ if ($#ARGV > -1 && $ARGV[0] eq "-h") {
 
 while (1) {
   system "clear";
+  
+  # Execute the test program and split output.
   my @curList = split /\n/, `run ptree`;
+
   foreach my $curItem (@curList) {
     my $match = 0;
 
     if ($#pastList > 0) {
+      
       my $i = 0;
       foreach my $pastItem (@pastList) {
         $i++;
         $match =  $pastItem eq $curItem;
         last if ($match);
       }
+
+      # Remove from @pastList if a match was detected. The process that matches didn't
+      # change from the previous iteration.
       if ($match) {
         splice @pastList, $i - 1, 1;
       }
@@ -39,6 +64,7 @@ while (1) {
   }
 
 
+  # Display removed processes
   if ($#pastList > 0) {
     foreach my $pastItem (@pastList) {
       print color 'bold red';
@@ -48,6 +74,7 @@ while (1) {
 
   @pastList = @curList;
 
+  # Display whether to proceed to the next iteration:
   print color 'bold blue';
   print "Refresh (y:n)? ";
   my $refresh = <STDIN>;
