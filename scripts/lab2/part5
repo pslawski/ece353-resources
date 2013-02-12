@@ -1,0 +1,57 @@
+#!/usr/bin/perl
+use warnings;
+use strict;
+use Term::ANSIColor;
+
+my @pastList = {};
+
+my $hide = 0;
+if ($#ARGV > -1 && $ARGV[0] eq "-h") {
+  $hide = 1;
+}
+  
+
+while (1) {
+  system "clear";
+  my @curList = split /\n/, `run ptree`;
+  foreach my $curItem (@curList) {
+    my $match = 0;
+
+    if ($#pastList > 0) {
+      my $i = 0;
+      foreach my $pastItem (@pastList) {
+        $i++;
+        $match =  $pastItem eq $curItem;
+        last if ($match);
+      }
+      if ($match) {
+        splice @pastList, $i - 1, 1;
+      }
+    }
+
+    if ($match) {
+      print color 'reset';
+      print "$curItem\n" unless $hide;
+    } else {
+      print color 'bold green';
+      print "$curItem\n";
+    }
+  }
+
+
+  if ($#pastList > 0) {
+    foreach my $pastItem (@pastList) {
+      print color 'bold red';
+      print "$pastItem\n";
+    }
+  }
+
+  @pastList = @curList;
+
+  print color 'bold blue';
+  print "Refresh (y:n)? ";
+  my $refresh = <STDIN>;
+  chomp $refresh;
+  last unless ($refresh eq "y");
+}
+
