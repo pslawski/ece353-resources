@@ -88,7 +88,11 @@ Execute \"run -r $userComm\" to restart the adb server.\n";
 
 if ($showHelp) {
   print <<END_;
-Usage:  Run kernel:                     run     
-        Run kernel in debug monitor:    run debug
+Usage:  Run kernel:                         run     
+        Run kernel in debug monitor:        run debug
+
+        Run user programs: eg. ptree        run ptree
+          option: -u upload executable      run -u ptree
+          option: -r reload adb server      run -r ptree 
 END_
 }
